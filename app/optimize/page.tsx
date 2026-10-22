@@ -2,52 +2,40 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { useCoverLetterContext } from "../context/CoverLetterContext";
+import { useState, type ReactNode } from "react";
+import { useResumeContext } from "../context/ResumeContext";
 import MoreServicesButton from "../components/moreServicesButton";
-import {
-  canAnalyze,
-  recordAttempt,
-  getRemainingAttempts,
-  getTimeUntilNextSlot,
-} from "../../lib/rateLimiter";
+import { MAJOR_GROUPS, CLASS_YEARS, UNDECLARED } from "../../lib/majors";
 
 export default function OptimizePage() {
-  const router = useRouter();
   const {
-    jobDescription,
-    setJobDescription,
     resumeFile,
     setResumeFile,
-    coverLetterFile,
-    setCoverLetterFile,
-  } = useCoverLetterContext();
+    major,
+    setMajor,
+    classYear,
+    setClassYear,
+    intendedMajor,
+    setIntendedMajor,
+  } = useResumeContext();
 
-  const [remaining, setRemaining] = useState(5);
-  const [limitReached, setLimitReached] = useState(false);
-  const [waitTime, setWaitTime] = useState("");
+  // The AI check isn't connected yet, so submitting shows a placeholder
+  // message instead of going to the loading page. When the AI is built,
+  // this is where the rate limiter check and router.push("/loading") return.
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
-  useEffect(() => {
-    // Runs client-side only, after mount, since localStorage isn't
-    // available during server rendering.
-    setRemaining(getRemainingAttempts());
-    setLimitReached(!canAnalyze());
-    setWaitTime(getTimeUntilNextSlot());
-  }, []);
+  const isUndeclared = major === UNDECLARED;
+  const canSubmit = Boolean(resumeFile && major && classYear);
 
-  function handleAnalyze() {
-    if (!canAnalyze()) {
-      setLimitReached(true);
-      setWaitTime(getTimeUntilNextSlot());
-      return;
-    }
+  function handleMajorChange(value: string) {
+    setMajor(value);
+    // Intended major only applies to undeclared students.
+    if (value !== UNDECLARED) setIntendedMajor("");
+  }
 
-    // Note: the actual "used a try" recording happens on the loading page,
-    // right before the real API call fires — not here. This ensures a try
-    // is only consumed when an API call is genuinely attempted, not just
-    // because the student clicked Analyze.
-    router.push("/loading");
+  function handleCheck() {
+    if (!canSubmit) return;
+    setShowComingSoon(true);
   }
 
   return (
@@ -85,78 +73,159 @@ export default function OptimizePage() {
       </div>
 
       <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-[#1A1523] md:text-5xl">
-        Cover Letter Optimizer for Students
+        Resume Readiness Check for Students
       </h1>
       <p className="mt-3 text-lg text-[#5B5468]">
-        Get your cover letter graded and optimized for your dream internship
-        or job.
+        See whether your resume follows the CPDI structure and has what
+        employers expect for your major and class year.
       </p>
 
       {/* Input cards */}
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {/* Job Description */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-[#1A1523]">
-            Job Description
-          </h2>
-          <p className="mt-1 text-sm text-[#5B5468]">
-            Paste the posting you&apos;re applying to
-          </p>
-          <textarea
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
-            placeholder={`Paste the job description here — e.g. 'Software Engineering Intern at a fintech startup. Looking for students with experience in React, Node.js, and REST APIs...'`}
-            className="mt-4 h-56 w-full resize-none rounded-xl border border-[#EAE6F5] bg-[#FBFAF8] p-4 text-sm text-[#1A1523] placeholder:text-[#9B96A8] focus:outline-none focus:ring-2 focus:ring-[#7C5CDB]"
-          />
-        </div>
-
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
         {/* Resume upload */}
         <UploadCard
           title="Resume"
-          subtitle="So we can cross-check your experience"
+          subtitle="Upload your current resume, even a rough draft"
           file={resumeFile}
           onFileSelect={setResumeFile}
-        />
-
-        {/* Cover Letter Draft upload */}
-        <UploadCard
-          title="Cover Letter Draft"
-          subtitle="Your current draft, even a rough one"
-          file={coverLetterFile}
-          onFileSelect={setCoverLetterFile}
           guideLink
         />
+
+        {/* About you */}
+        <div className="rounded-2xl bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-[#1A1523]">About You</h2>
+          <p className="mt-1 text-sm text-[#5B5468]">
+            So we can check your resume against what your field expects
+          </p>
+
+          <SelectField
+            id="major"
+            label="Major"
+            value={major}
+            onChange={handleMajorChange}
+            placeholder="Select your major"
+          >
+            <option value={UNDECLARED}>{UNDECLARED}</option>
+            {MAJOR_GROUPS.map((group) => (
+              <optgroup key={group.school} label={group.school}>
+                {group.majors.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </SelectField>
+
+          {isUndeclared && (
+            <SelectField
+              id="intendedMajor"
+              label="Intended Major (optional)"
+              value={intendedMajor}
+              onChange={setIntendedMajor}
+              placeholder="Not sure yet"
+              helpText="We'll add suggestions from this major, but your resume is checked mainly on structure."
+            >
+              {MAJOR_GROUPS.map((group) => (
+                <optgroup key={group.school} label={group.school}>
+                  {group.majors.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </SelectField>
+          )}
+
+          <SelectField
+            id="classYear"
+            label="Class Year"
+            value={classYear}
+            onChange={setClassYear}
+            placeholder="Select your class year"
+            helpText="Transfer students: choose based on credits completed."
+          >
+            {CLASS_YEARS.map((year) => (
+              <option key={year.value} value={year.value}>
+                {year.label}
+              </option>
+            ))}
+          </SelectField>
+        </div>
       </div>
 
       {/* CTA */}
       <div className="mt-10 flex flex-col items-center gap-3">
-        {limitReached ? (
+        {showComingSoon ? (
           <div className="max-w-md rounded-xl bg-[#FBF0E3] px-5 py-4 text-center">
             <p className="text-sm font-bold text-[#B4711F]">
-              You've reached today's limit of 5 tries.
+              Resume feedback is coming soon!
             </p>
             <p className="mt-1 text-sm text-[#5B5468]">
-              Come back in about {waitTime} to submit again.
+              This tool is still being built. Check back soon to get your
+              results.
             </p>
           </div>
         ) : (
           <>
             <button
               type="button"
-              onClick={handleAnalyze}
-              disabled={!jobDescription || !resumeFile || !coverLetterFile}
+              onClick={handleCheck}
+              disabled={!canSubmit}
               className="inline-flex items-center gap-2.5 rounded-full bg-[#7C5CDB] px-8 py-4 text-base font-bold text-white transition hover:bg-[#6B4CC7] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Analyze My Cover Letter
+              Check My Resume
               <span aria-hidden="true">→</span>
             </button>
-            <p className="text-xs text-[#9B96A8]">
-              {remaining} of 5 tries remaining today
-            </p>
+            {!canSubmit && (
+              <p className="text-xs text-[#9B96A8]">
+                Upload your resume and choose your major and class year to
+                continue.
+              </p>
+            )}
           </>
         )}
       </div>
     </main>
+  );
+}
+
+function SelectField({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  helpText,
+  children,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  helpText?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mt-5">
+      <label htmlFor={id} className="text-sm font-bold text-[#1A1523]">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`mt-2 w-full rounded-xl border border-[#EAE6F5] bg-[#FBFAF8] p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#7C5CDB] ${
+          value ? "text-[#1A1523]" : "text-[#9B96A8]"
+        }`}
+      >
+        <option value="">{placeholder}</option>
+        {children}
+      </select>
+      {helpText && <p className="mt-1.5 text-xs text-[#9B96A8]">{helpText}</p>}
+    </div>
   );
 }
 
@@ -187,14 +256,14 @@ function UploadCard({
       <p className="mt-1 text-sm text-[#5B5468]">{subtitle}</p>
       {guideLink && (
         <p className="mt-1 text-xs text-[#9B96A8]">
-          Haven&apos;t started yet?{" "}
+          Need a starting point?{" "}
           <a
-            href="/cover-letter-guide.pdf"
+            href="/resume-guide.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-[#7C5CDB] underline hover:text-[#6B4CC7]"
           >
-            See the CPDI Cover Letter Guide
+            See the CPDI Resume Guide
           </a>
         </p>
       )}

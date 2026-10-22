@@ -1,4 +1,4 @@
-const STORAGE_KEY = "cpdi_analyze_attempts";
+const STORAGE_KEY = "cpdi_resume_attempts";
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 

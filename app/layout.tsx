@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CoverLetterProvider } from "./context/CoverLetterContext";
+import { ResumeProvider } from "./context/ResumeContext";
 import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CPDI Cover Letter Optimizer",
+  title: "CPDI Resume Readiness Check",
   description:
-    "AI-powered cover letter feedback for CCNY students, built by the Career & Professional Development Institute.",
+    "Internship resume feedback for CCNY students, built by the Career & Professional Development Institute.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <CoverLetterProvider>{children}</CoverLetterProvider>
+        <ResumeProvider>{children}</ResumeProvider>
         <Analytics />
       </body>
     </html>

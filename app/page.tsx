@@ -31,35 +31,34 @@ export default function LandingPage() {
 
         {/* Headline */}
         <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight text-[#1A1523] md:text-6xl">
-          Get your cover letter
+          Get your resume
           <br />
-          internship and job ready in minutes
+          internship ready in minutes
         </h1>
 
         {/* Subtext */}
         <p className="mx-auto mt-4 max-w-2xl text-2xl leading-relaxed text-[#5B5468]">
-          Paste the job description, upload your resume and cover letter
-          draft, and receive a grade along with specific, encouraging
-          feedback tailored to the role—all designed with CCNY students in
-          mind.
+          Upload your resume, tell us your major and class year, and see
+          what&apos;s working, what&apos;s missing, and what to add
+          next—all designed with CCNY students in mind.
         </p>
 
         {/* Steps */}
         <div className="mt-8 grid gap-6 text-left md:grid-cols-3">
           <StepCard
             number={1}
-            title="Paste & upload"
-            description="Add the job description, your resume, and your draft cover letter."
+            title="Upload & tell us about you"
+            description="Add your resume, then choose your major and class year."
           />
           <StepCard
             number={2}
             title="We analyze it"
-            description="We check tone, structure, and how well it lines up with the role."
+            description="We check your resume against the CPDI structure and what employers expect in your field."
           />
           <StepCard
             number={3}
-            title="Get your grade & fixes"
-            description="A score out of 100, plus a clear strategy for what to improve."
+            title="Get your checklist"
+            description="See what you already have, what's missing, and clear next steps for your year."
           />
         </div>
 
@@ -74,14 +73,14 @@ export default function LandingPage() {
 
         {/* Guide link for first-timers */}
         <p className="mt-4 text-sm text-[#9B96A8]">
-          Haven&apos;t written a cover letter before?{" "}
+          Haven&apos;t written a resume before?{" "}
           <a
-            href="/cover-letter-guide.pdf"
+            href="/resume-guide.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-[#7C5CDB] underline hover:text-[#6B4CC7]"
           >
-            Check out the CPDI Cover Letter Guide
+            Check out the CPDI Resume Guide
           </a>{" "}
           to get started.
         </p>

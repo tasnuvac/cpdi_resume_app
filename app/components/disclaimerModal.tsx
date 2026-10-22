@@ -30,38 +30,32 @@ export default function DisclaimerModal() {
           <li className="flex gap-3">
             <span className="text-[#7C5CDB]">•</span>
             <span>
-              Always submit a cover letter to the jobs or internships
-              you&apos;re applying to, unless the listing specifically tells
-              you not to.
+              This tool gives feedback on a resume you&apos;ve already started — it will not write or rewrite your resume for you.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="text-[#7C5CDB]">•</span>
             <span>
-              This tool is designed to help you improve a cover letter
-              you&apos;ve already written — it is not meant to write one for
-              you from scratch.
+              Feedback is based on the CPDI resume structure and what employers commonly look for in your major and class year. It is a starting point, not a replacement for meeting with a CPDI career coach.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="text-[#7C5CDB]">•</span>
             <span>
-              To help us improve this tool, we may collect a copy of your
-              resume, cover letter, and the feedback results it generates.
+              Formatting like fonts, bolding, and page length can&apos;t be checked from an upload, so you&apos;ll get a short checklist to review those yourself.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="text-[#7C5CDB]">•</span>
             <span>
-              New to cover letters, or is this your first draft? Check out
-              the{" "}
+              New to resumes, or is this your first draft? Check out the{" "}
               <a
-                href="/cover-letter-guide.pdf"
+                href="/resume-guide.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold text-[#7C5CDB] underline hover:text-[#6B4CC7]"
               >
-                CPDI Cover Letter Guide
+                CPDI Resume Guide
               </a>{" "}
               before you start.
             </span>
