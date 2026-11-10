@@ -446,6 +446,8 @@ function firstById<T extends { id: string }>(list: T[] | undefined): Map<string,
 
 // Shown on the results page as-is. No AI needed, since uploads can't
 // reveal formatting.
+// Shown on the results page as-is. No AI needed, since uploads can't
+// reveal formatting.
 export const FORMATTING_SELF_CHECK = [
   "Times New Roman or Arial",
   "Font size 10.5 to 12",
