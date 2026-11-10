@@ -109,8 +109,8 @@ export const MAJOR_GROUPS: MajorGroup[] = [
 ];
 
 export const CLASS_YEARS = [
-  { value: "Freshman", label: "Freshman (0–29 credits)" },
-  { value: "Sophomore", label: "Sophomore (30–59 credits)" },
-  { value: "Junior", label: "Junior (60–89 credits)" },
-  { value: "Senior", label: "Senior (90+ credits)" },
+  { value: "Freshman", label: "Freshman" },
+  { value: "Sophomore", label: "Sophomore" },
+  { value: "Junior", label: "Junior" },
+  { value: "Senior", label: "Senior" },
 ];

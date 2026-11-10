@@ -144,7 +144,6 @@ export default function OptimizePage() {
             value={classYear}
             onChange={setClassYear}
             placeholder="Select your class year"
-            helpText="Transfer students: choose based on credits completed."
           >
             {CLASS_YEARS.map((year) => (
               <option key={year.value} value={year.value}>
