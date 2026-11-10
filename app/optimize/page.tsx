@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useResumeContext } from "../context/ResumeContext";
 import MoreServicesButton from "../components/moreServicesButton";
@@ -17,12 +18,9 @@ export default function OptimizePage() {
     setClassYear,
     intendedMajor,
     setIntendedMajor,
+    setResult,
   } = useResumeContext();
-
-  // The AI check isn't connected yet, so submitting shows a placeholder
-  // message instead of going to the loading page. When the AI is built,
-  // this is where the rate limiter check and router.push("/loading") return.
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const router = useRouter();
 
   const isUndeclared = major === UNDECLARED;
   const canSubmit = Boolean(resumeFile && major && classYear);
@@ -33,9 +31,13 @@ export default function OptimizePage() {
     if (value !== UNDECLARED) setIntendedMajor("");
   }
 
+  // Clears any earlier result, then hands off to the loading page, which
+  // runs the check. When the AI is connected, the rate limiter check
+  // (canAnalyze from lib/rateLimiter) goes here, before router.push.
   function handleCheck() {
     if (!canSubmit) return;
-    setShowComingSoon(true);
+    setResult(null);
+    router.push("/loading");
   }
 
   return (
@@ -156,34 +158,20 @@ export default function OptimizePage() {
 
       {/* CTA */}
       <div className="mt-10 flex flex-col items-center gap-3">
-        {showComingSoon ? (
-          <div className="max-w-md rounded-xl bg-[#FBF0E3] px-5 py-4 text-center">
-            <p className="text-sm font-bold text-[#B4711F]">
-              Resume feedback is coming soon!
-            </p>
-            <p className="mt-1 text-sm text-[#5B5468]">
-              This tool is still being built. Check back soon to get your
-              results.
-            </p>
-          </div>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={handleCheck}
-              disabled={!canSubmit}
-              className="inline-flex items-center gap-2.5 rounded-full bg-[#7C5CDB] px-8 py-4 text-base font-bold text-white transition hover:bg-[#6B4CC7] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Check My Resume
-              <span aria-hidden="true">→</span>
-            </button>
-            {!canSubmit && (
-              <p className="text-xs text-[#9B96A8]">
-                Upload your resume and choose your major and class year to
-                continue.
-              </p>
-            )}
-          </>
+        <button
+          type="button"
+          onClick={handleCheck}
+          disabled={!canSubmit}
+          className="inline-flex items-center gap-2.5 rounded-full bg-[#7C5CDB] px-8 py-4 text-base font-bold text-white transition hover:bg-[#6B4CC7] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Check My Resume
+          <span aria-hidden="true">→</span>
+        </button>
+        {!canSubmit && (
+          <p className="text-xs text-[#9B96A8]">
+            Upload your resume and choose your major and class year to
+            continue.
+          </p>
         )}
       </div>
     </main>

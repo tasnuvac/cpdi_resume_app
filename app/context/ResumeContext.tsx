@@ -1,12 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import type { ResumeCheckResult } from "../../lib/resumePrompt";
 
-// Shared, in-memory state for the student's inputs so they persist while
-// navigating between pages. Nothing is stored on a server or in a database.
-// Analysis results will be added here once the AI check is built.
+// Shared, in-memory state for the student's inputs and their results so
+// they persist while navigating between pages. Nothing is stored on a
+// server or in a database; refreshing the page clears it.
 
 type ResumeContextType = {
+  result: ResumeCheckResult | null;
+  setResult: (result: ResumeCheckResult | null) => void;
   resumeFile: File | null;
   setResumeFile: (file: File | null) => void;
   major: string;
@@ -24,10 +27,13 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [major, setMajor] = useState("");
   const [classYear, setClassYear] = useState("");
   const [intendedMajor, setIntendedMajor] = useState("");
+  const [result, setResult] = useState<ResumeCheckResult | null>(null);
 
   return (
     <ResumeContext.Provider
       value={{
+        result,
+        setResult,
         resumeFile,
         setResumeFile,
         major,
