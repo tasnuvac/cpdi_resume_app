@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ErrorModal from "../components/errorModal";
 import MoreServicesButton from "../components/moreServicesButton";
+import ReadinessCard from "../components/readinessCard";
+import { CPDI_LINKS } from "../../lib/cpdiLinks";
 import { useResumeContext } from "../context/ResumeContext";
 import {
   FormattingCard,
@@ -65,7 +67,7 @@ export default function FeedbackPage() {
         <div className="flex justify-self-end gap-3">
           {result && <MoreServicesButton />}
           <a
-            href="https://ccny-csm.symplicity.com/"
+            href={CPDI_LINKS.careerConnections}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 rounded-full bg-[#EDE7FB] px-5 py-2.5 text-base font-bold text-[#7C5CDB] transition hover:bg-[#D9D2F0]"
@@ -90,9 +92,10 @@ export default function FeedbackPage() {
             )}
           </div>
 
-          {/* Order top to bottom: overview, the two checklists side by
-              side, then what to do next. */}
+          {/* Order top to bottom: the student's next CPDI step, overview,
+              the two checklists side by side, then what to do next. */}
           <div className="mt-8 space-y-6">
+            <ReadinessCard result={result} major={major} classYear={classYear} />
             <SummaryCard result={result} />
 
             <div className="grid gap-6 md:grid-cols-2">
