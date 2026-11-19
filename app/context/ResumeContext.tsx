@@ -18,6 +18,8 @@ type ResumeContextType = {
   setClassYear: (value: string) => void;
   intendedMajor: string;
   setIntendedMajor: (value: string) => void;
+  previousCode: string;
+  setPreviousCode: (value: string) => void;
 };
 
 const ResumeContext = createContext<ResumeContextType | null>(null);
@@ -28,6 +30,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [classYear, setClassYear] = useState("");
   const [intendedMajor, setIntendedMajor] = useState("");
   const [result, setResult] = useState<ResumeCheckResult | null>(null);
+  const [previousCode, setPreviousCode] = useState("");
 
   return (
     <ResumeContext.Provider
@@ -42,6 +45,8 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
         setClassYear,
         intendedMajor,
         setIntendedMajor,
+        previousCode,
+        setPreviousCode,
       }}
     >
       {children}

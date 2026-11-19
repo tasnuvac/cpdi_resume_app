@@ -6,6 +6,8 @@ import ErrorModal from "../components/errorModal";
 import MoreServicesButton from "../components/moreServicesButton";
 import ReadinessCard from "../components/readinessCard";
 import CoachSummary from "../components/coachSummary";
+import ProgressCard from "../components/progressCard";
+import { encodeProgress } from "../../lib/progressCode";
 import { CPDI_LINKS } from "../../lib/cpdiLinks";
 import { USE_MOCK_RESULTS } from "../../lib/mockResult";
 import { useResumeContext } from "../context/ResumeContext";
@@ -22,7 +24,10 @@ import {
 const SHOW_SAMPLE_LABEL = USE_MOCK_RESULTS;
 
 export default function FeedbackPage() {
-  const { result, major, classYear } = useResumeContext();
+  const { result, major, classYear, previousCode } = useResumeContext();
+
+  // This check's progress code, shown on the page and on the coach summary.
+  const progressCode = result ? encodeProgress(result, major, classYear) : null;
 
   return (
     <main className="min-h-screen bg-[#FAF8F5] px-6 py-12 md:px-16 print:min-h-0 print:bg-white print:p-0">
@@ -94,10 +99,18 @@ export default function FeedbackPage() {
             )}
           </div>
 
-          {/* Order top to bottom: the student's next CPDI step, overview,
-              the two checklists side by side, then what to do next. */}
+          {/* Order top to bottom: the student's next CPDI step, their
+              progress, overview, the two checklists side by side, then
+              what to do next. */}
           <div className="mt-8 space-y-6 print:hidden">
             <ReadinessCard result={result} major={major} classYear={classYear} />
+            <ProgressCard
+              result={result}
+              major={major}
+              classYear={classYear}
+              code={progressCode}
+              previousCode={previousCode}
+            />
             <SummaryCard result={result} />
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -110,7 +123,13 @@ export default function FeedbackPage() {
             <FormattingCard />
           </div>
 
-          <CoachSummary result={result} major={major} classYear={classYear} isSample={SHOW_SAMPLE_LABEL} />
+          <CoachSummary
+            result={result}
+            major={major}
+            classYear={classYear}
+            isSample={SHOW_SAMPLE_LABEL}
+            progressCode={progressCode}
+          />
         </>
       )}
     </main>

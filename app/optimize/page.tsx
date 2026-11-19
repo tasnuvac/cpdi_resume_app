@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useResumeContext } from "../context/ResumeContext";
 import MoreServicesButton from "../components/moreServicesButton";
+import ProgressCodeField from "../components/progressCodeField";
 import { MAJOR_GROUPS, CLASS_YEARS, UNDECLARED } from "../../lib/majors";
 
 export default function OptimizePage() {
@@ -19,6 +20,8 @@ export default function OptimizePage() {
     intendedMajor,
     setIntendedMajor,
     setResult,
+    previousCode,
+    setPreviousCode,
   } = useResumeContext();
   const router = useRouter();
 
@@ -153,6 +156,8 @@ export default function OptimizePage() {
               </option>
             ))}
           </SelectField>
+
+          <ProgressCodeField value={previousCode} onChange={setPreviousCode} />
         </div>
       </div>
 

@@ -15,11 +15,12 @@ import { CPDI_LINKS } from "../../lib/cpdiLinks";
 // The name and questions stay in this browser tab. They're never sent
 // anywhere or saved, so the app stays stateless.
 
-export default function CoachSummary({ result, major, classYear, isSample }: {
+export default function CoachSummary({ result, major, classYear, isSample, progressCode }: {
   result: ResumeCheckResult;
   major: string;
   classYear: string;
   isSample: boolean;
+  progressCode: string | null;
 }) {
   const [name, setName] = useState("");
   const [questions, setQuestions] = useState("");
@@ -105,6 +106,7 @@ export default function CoachSummary({ result, major, classYear, isSample }: {
           <p>
             {major} · {classYear} · {date}
           </p>
+          {progressCode && <p>Progress code: {progressCode}</p>}
           {isSample && <p className="mt-1 font-bold">Sample results: the AI isn&apos;t connected yet, so this isn&apos;t based on a real resume.</p>}
         </header>
 

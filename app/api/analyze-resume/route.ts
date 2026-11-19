@@ -182,7 +182,10 @@ export async function POST(req: Request) {
           seed: 42,
           maxOutputTokens: 3000,
           abortSignal: req.signal,
-          httpOptions: { timeout: PER_MODEL_TIMEOUT_MS },
+          // Never wait past the overall limit, even on the last model.
+          httpOptions: {
+            timeout: Math.max(1000, Math.min(PER_MODEL_TIMEOUT_MS, TOTAL_TIME_LIMIT_MS - (Date.now() - startTime))),
+          },
           ...getThinkingConfig(),
         },
         contents: [{ role: "user", parts: [{ text: message }] }],
@@ -212,7 +215,10 @@ export async function POST(req: Request) {
       const e = err as { status?: unknown; error?: { status?: unknown }; message?: string; name?: string };
       const status = e?.status ?? e?.error?.status;
       const isRateLimited = status === 429 || status === "RESOURCE_EXHAUSTED";
-      const isOverloaded = status === 503 || status === "UNAVAILABLE";
+      // 503 = busy, 504 = Google ran out of time on its end. Both mean
+      // "try another model and skip this one for a minute".
+      const isOverloaded =
+        status === 503 || status === "UNAVAILABLE" || status === 504 || status === "DEADLINE_EXCEEDED";
       const isUnavailable = status === 404 || status === 403;
       const isTimeout = e?.name === "AbortError" || /timed? ?out/i.test(e?.message ?? "");
 
