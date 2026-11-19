@@ -351,6 +351,14 @@ export const MOCK_PSY_SENIOR_NOT_READY: ResumeCheckResult = {
 };
 
 // ------------------------------------------------------------------
+// Mock switch
+// ------------------------------------------------------------------
+// true: the loading page skips the AI and uses these mocks (free, instant,
+// and the results page shows a "Sample results" label).
+// false: real resume checks through /api/analyze-resume.
+export const USE_MOCK_RESULTS = false;
+
+// ------------------------------------------------------------------
 // Picking a mock while the AI is disconnected
 // ------------------------------------------------------------------
 // Each class year gets its own mock. For juniors and seniors, flip this

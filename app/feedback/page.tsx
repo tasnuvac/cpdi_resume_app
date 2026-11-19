@@ -7,6 +7,7 @@ import MoreServicesButton from "../components/moreServicesButton";
 import ReadinessCard from "../components/readinessCard";
 import CoachSummary from "../components/coachSummary";
 import { CPDI_LINKS } from "../../lib/cpdiLinks";
+import { USE_MOCK_RESULTS } from "../../lib/mockResult";
 import { useResumeContext } from "../context/ResumeContext";
 import {
   FormattingCard,
@@ -17,9 +18,8 @@ import {
   SummaryCard,
 } from "../components/resultSections";
 
-// Shows the label saying these are sample results. Set to false in step 10,
-// once the loading page sends the real resume to the AI.
-const SHOW_SAMPLE_LABEL = true;
+// Shows the "Sample results" label only while testing with mock results.
+const SHOW_SAMPLE_LABEL = USE_MOCK_RESULTS;
 
 export default function FeedbackPage() {
   const { result, major, classYear } = useResumeContext();

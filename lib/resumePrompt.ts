@@ -429,9 +429,12 @@ export function finalizeResult(raw: AIResult, mode: Mode, checklist: ChecklistIt
 
   const majorChecklist = checklist.map((item) => {
     const got = checklistById.get(item.id);
-    let status: ChecklistStatus = got?.status ?? "suggest";
+    // If the AI skipped an item: a required one shows as "missing" (so it
+    // matches the readiness card), anything else as a suggestion.
+    let status: ChecklistStatus = got?.status ?? (item.required ? "missing" : "suggest");
     if (!item.required && status === "missing") status = "suggest";
-    return { ...item, status, note: got?.note ?? "" };
+    const note = got?.note ?? (item.required ? "We couldn't confirm this one. Check it with a CPDI coach." : "");
+    return { ...item, status, note };
   });
 
   return { ...raw, strengths: raw.strengths ?? [], mode, structure, majorChecklist };
@@ -443,16 +446,3 @@ function firstById<T extends { id: string }>(list: T[] | undefined): Map<string,
   for (const item of list ?? []) if (!map.has(item.id)) map.set(item.id, item);
   return map;
 }
-
-// Shown on the results page as-is. No AI needed, since uploads can't
-// reveal formatting.
-// Shown on the results page as-is. No AI needed, since uploads can't
-// reveal formatting.
-export const FORMATTING_SELF_CHECK = [
-  "Times New Roman or Arial",
-  "Font size 10.5 to 12",
-  "Fits on one page",
-  "Name in bold capital letters",
-  "Position titles in bold italics",
-  "Organization names in bold",
-];

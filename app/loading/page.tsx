@@ -2,33 +2,84 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ErrorModal from "../components/errorModal";
 import { useResumeContext } from "../context/ResumeContext";
-import { getMockResult } from "../../lib/mockResult";
+import { USE_MOCK_RESULTS, getMockResult } from "../../lib/mockResult";
 import type { ResumeCheckResult } from "../../lib/resumePrompt";
 
-// How long the mock check "takes", so the loading screen is visible while
-// building the UI. A real check will take a few seconds on its own.
+// How long the mock check "takes", so the loading screen is visible
+// when testing with mock results.
 const MOCK_DELAY_MS = 1500;
 
-// Runs the resume check. For now it returns a mock result picked by class
-// year (see lib/mockResult.ts). When the AI is connected (step 10), this is
-// the only function that changes: it will POST the resume, major, and class
-// year to /api/analyze-resume and return the result.
-async function runCheck(classYear: string, signal: AbortSignal): Promise<ResumeCheckResult> {
-  await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(resolve, MOCK_DELAY_MS);
-    signal.addEventListener("abort", () => {
-      clearTimeout(timer);
-      reject(new DOMException("Aborted", "AbortError"));
+type CheckInputs = {
+  resumeFile: File;
+  major: string;
+  classYear: string;
+  intendedMajor: string;
+};
+
+// An error the student should see, with a code from the API route.
+class CheckError extends Error {
+  constructor(public code: string, message: string) {
+    super(message);
+  }
+}
+
+// Titles for each kind of error. The message comes from the API route.
+const ERROR_TITLES: Record<string, string> = {
+  badRequest: "Something's missing",
+  unreadable: "We couldn't read your file",
+  tooShort: "Your resume looks too short",
+  notResume: "That doesn't look like a resume",
+  rateLimited: "We're a little busy",
+  overloaded: "We're a little busy",
+  failed: "Something went wrong",
+};
+
+// Runs the resume check: sends the resume to /api/analyze-resume and
+// returns the result. Set USE_MOCK_RESULTS in lib/mockResult.ts to true
+// to test the pages without calling the AI.
+async function runCheck(inputs: CheckInputs, signal: AbortSignal): Promise<ResumeCheckResult> {
+  if (USE_MOCK_RESULTS) {
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(resolve, MOCK_DELAY_MS);
+      signal.addEventListener("abort", () => {
+        clearTimeout(timer);
+        reject(new DOMException("Aborted", "AbortError"));
+      });
     });
-  });
-  return getMockResult(classYear);
+    return getMockResult(inputs.classYear);
+  }
+
+  const body = new FormData();
+  body.append("resumeFile", inputs.resumeFile);
+  body.append("major", inputs.major);
+  body.append("classYear", inputs.classYear);
+  body.append("intendedMajor", inputs.intendedMajor);
+
+  let response: Response;
+  try {
+    response = await fetch("/api/analyze-resume", { method: "POST", body, signal });
+  } catch (err) {
+    if (signal.aborted) throw err;
+    throw new CheckError("failed", "We couldn't reach the server. Check your internet connection and try again.");
+  }
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new CheckError(
+      data?.code ?? "failed",
+      data?.error ?? "Something went wrong checking your resume. Please try again."
+    );
+  }
+  return data as ResumeCheckResult;
 }
 
 export default function LoadingPage() {
   const router = useRouter();
-  const { resumeFile, major, classYear, setResult } = useResumeContext();
+  const { resumeFile, major, classYear, intendedMajor, setResult } = useResumeContext();
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<CheckError | null>(null);
 
   useEffect(() => {
     // Someone landed here directly (or refreshed): send them back to the form.
@@ -44,7 +95,7 @@ export default function LoadingPage() {
       setProgress((prev) => (prev >= 90 ? prev : Math.min(prev + Math.max((90 - prev) * 0.12, 0.5), 90)));
     }, 150);
 
-    runCheck(classYear, controller.signal)
+    runCheck({ resumeFile, major, classYear, intendedMajor }, controller.signal)
       .then((result) => {
         clearInterval(progressInterval);
         setProgress(100);
@@ -55,9 +106,15 @@ export default function LoadingPage() {
         // Cleanup aborted the check (navigated away, or React's dev-only
         // double run). Nothing to report.
         if (controller.signal.aborted) return;
-        console.error("Resume check failed:", err);
+        // A warning, not an error: these are expected cases (too short,
+        // busy, etc.) that the student sees in the modal below.
+        console.warn("Resume check failed:", err);
         clearInterval(progressInterval);
-        router.push("/feedback");
+        setError(
+          err instanceof CheckError
+            ? err
+            : new CheckError("failed", "Something went wrong checking your resume. Please try again.")
+        );
       });
 
     return () => {
@@ -70,6 +127,14 @@ export default function LoadingPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-6">
+      {error && (
+        <ErrorModal
+          title={ERROR_TITLES[error.code] ?? ERROR_TITLES.failed}
+          message={error.message}
+          buttonText="Back to Resume Check"
+          buttonHref="/optimize"
+        />
+      )}
       <div className="w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-sm">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#7C5CDB]">
           <span className="text-3xl" role="img" aria-label="Bear mascot">
