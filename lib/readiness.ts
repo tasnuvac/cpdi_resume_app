@@ -8,6 +8,7 @@
 // Only "type" imports below, so this file is safe to use in the browser.
 
 import type { ResumeCheckResult } from "./resumePrompt";
+import { UNDECLARED } from "./majors";
 
 export type Readiness =
   // Junior or senior with every required item done
@@ -51,4 +52,29 @@ export function getReadiness(result: ResumeCheckResult): Readiness {
 
 export function isInternshipReady(result: ResumeCheckResult): boolean {
   return getReadiness(result).state === "ready";
+}
+// What to work on before junior year. Used by the readiness card and the
+// coach summary, so both always show the same tips.
+const BUILDING_TIPS: Record<string, string[]> = {
+  Freshman: [
+    "Join a club related to your major",
+    "Turn a class project into a Projects entry on your resume",
+    "Go to a CPDI workshop to start building your skills list",
+  ],
+  Sophomore: [
+    "Apply to the CPDI Internship Program",
+    "Look for a lab, research, or project role in your major",
+    "Join a club or society in your field",
+  ],
+};
+
+const UNDECLARED_TIPS = [
+  "Meet with a CPDI coach to explore majors and careers",
+  "Get your resume into the CPDI structure now, so it's ready when you declare",
+  "Try a club or workshop in a field you're considering",
+];
+
+export function getBuildingTips(major: string, classYear: string): string[] {
+  if (major === UNDECLARED) return UNDECLARED_TIPS;
+  return BUILDING_TIPS[classYear] ?? BUILDING_TIPS.Freshman;
 }

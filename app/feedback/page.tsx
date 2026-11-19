@@ -5,6 +5,7 @@ import Link from "next/link";
 import ErrorModal from "../components/errorModal";
 import MoreServicesButton from "../components/moreServicesButton";
 import ReadinessCard from "../components/readinessCard";
+import CoachSummary from "../components/coachSummary";
 import { CPDI_LINKS } from "../../lib/cpdiLinks";
 import { useResumeContext } from "../context/ResumeContext";
 import {
@@ -24,7 +25,7 @@ export default function FeedbackPage() {
   const { result, major, classYear } = useResumeContext();
 
   return (
-    <main className="min-h-screen bg-[#FAF8F5] px-6 py-12 md:px-16">
+    <main className="min-h-screen bg-[#FAF8F5] px-6 py-12 md:px-16 print:min-h-0 print:bg-white print:p-0">
       {/* No result: the student refreshed (which clears in-memory state) or
           the check failed. The modal sits on top of the page shell, the same
           pattern the cover letter app uses. */}
@@ -37,8 +38,9 @@ export default function FeedbackPage() {
         />
       )}
 
-      {/* Top nav row with centered logo */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+      {/* Top nav row with centered logo. Everything marked print:hidden
+          is left out of the coach summary download. */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 print:hidden">
         <div className="flex justify-self-start gap-3">
           <Link
             href="/"
@@ -77,11 +79,11 @@ export default function FeedbackPage() {
         </div>
       </div>
 
-      <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-[#1A1523]">Your Results</h1>
+      <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-[#1A1523] print:hidden">Your Results</h1>
 
       {result && (
         <>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
             <span className="inline-flex rounded-full bg-[#EDE7FB] px-4 py-1.5 text-sm font-bold text-[#7C5CDB]">
               {classYear} · {major} · {result.mode === "REQUIRED" ? "Required items checked" : "Suggestions only"}
             </span>
@@ -94,7 +96,7 @@ export default function FeedbackPage() {
 
           {/* Order top to bottom: the student's next CPDI step, overview,
               the two checklists side by side, then what to do next. */}
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-6 print:hidden">
             <ReadinessCard result={result} major={major} classYear={classYear} />
             <SummaryCard result={result} />
 
@@ -107,6 +109,8 @@ export default function FeedbackPage() {
             <SpellingCard items={result.spellingGrammar} />
             <FormattingCard />
           </div>
+
+          <CoachSummary result={result} major={major} classYear={classYear} isSample={SHOW_SAMPLE_LABEL} />
         </>
       )}
     </main>

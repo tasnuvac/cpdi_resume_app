@@ -1,5 +1,5 @@
 import type { ResumeCheckResult } from "../../lib/resumePrompt";
-import { getReadiness } from "../../lib/readiness";
+import { getBuildingTips, getReadiness } from "../../lib/readiness";
 import { CPDI_LINKS } from "../../lib/cpdiLinks";
 import { UNDECLARED } from "../../lib/majors";
 
@@ -11,26 +11,6 @@ import { UNDECLARED } from "../../lib/majors";
 //
 // Wording says "meets the CPDI checklist", not "guaranteed ready".
 // Waiting on Devika's approval of this wording before the pilot.
-
-// What to focus on before junior year, by class year.
-const BUILDING_TIPS: Record<string, string[]> = {
-  Freshman: [
-    "Join a club related to your major",
-    "Turn a class project into a Projects entry on your resume",
-    "Go to a CPDI workshop to start building your skills list",
-  ],
-  Sophomore: [
-    "Apply to the CPDI Internship Program",
-    "Look for a lab, research, or project role in your major",
-    "Join a club or society in your field",
-  ],
-};
-
-const UNDECLARED_TIPS = [
-  "Meet with a CPDI coach to explore majors and careers",
-  "Get your resume into the CPDI structure now, so it's ready when you declare",
-  "Try a club or workshop in a field you're considering",
-];
 
 export default function ReadinessCard({ result, major, classYear }: {
   result: ResumeCheckResult;
@@ -103,7 +83,7 @@ export default function ReadinessCard({ result, major, classYear }: {
 
   // building: freshman, sophomore, or undeclared
   const isUndeclared = major === UNDECLARED;
-  const tips = isUndeclared ? UNDECLARED_TIPS : BUILDING_TIPS[classYear] ?? BUILDING_TIPS.Freshman;
+  const tips = getBuildingTips(major, classYear);
   return (
     <section className="rounded-2xl border-2 border-[#D9D2F0] bg-[#F3EFFC] p-6 md:p-8">
       <p className="text-xs font-bold tracking-wide text-[#7C5CDB]">WHAT TO BUILD THIS YEAR</p>
